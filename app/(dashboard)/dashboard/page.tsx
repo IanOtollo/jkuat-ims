@@ -20,27 +20,16 @@ import {
 } from 'lucide-react';
 
 async function DashboardStats({ role, userId }: { role: string, userId: string }) {
-  return (
-    <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {[...Array(4)].map((_, i) => <div key={i} className="card p-6 h-32 animate-pulse bg-surface-raised" />)}
-    </div>}>
-      <CachedStats role={role} userId={userId} />
-    </Suspense>
-  );
-}
-
-async function CachedStats({ role, userId }: { role: string, userId: string }) {
-  'use cache'
-  const adminClient = createAdminClient();
+  const supabase = createClient();
   
   const [
     { count: total },
     { count: open },
     { count: resolved }
   ] = await Promise.all([
-    adminClient.from('incidents').select('*', { count: 'exact', head: true }),
-    adminClient.from('incidents').select('*', { count: 'exact', head: true }).in('status', ['pending', 'assigned', 'in_progress']),
-    adminClient.from('incidents').select('*', { count: 'exact', head: true }).eq('status', 'resolved')
+    supabase.from('incidents').select('*', { count: 'exact', head: true }),
+    supabase.from('incidents').select('*', { count: 'exact', head: true }).in('status', ['pending', 'assigned', 'in_progress']),
+    supabase.from('incidents').select('*', { count: 'exact', head: true }).eq('status', 'resolved')
   ]);
 
   const rate = total ? Math.round((resolved! / total!) * 100) : 0;

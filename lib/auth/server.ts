@@ -8,18 +8,10 @@ export async function getProfile() {
   
   if (!session) return null;
 
-  return getCachedProfile(session.user.id);
-}
-
-// This function handles the cached part
-async function getCachedProfile(userId: string) {
-  'use cache'
-  const adminClient = createAdminClient();
-  
-  const { data: profile } = await adminClient
+  const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', userId)
+    .eq('id', session.user.id)
     .single();
 
   return profile as Profile | null;
