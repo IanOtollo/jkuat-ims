@@ -8,6 +8,7 @@ import { useToast } from '@/components/ui/Toast';
 import { generatePublicReference } from '@/lib/utils/reference';
 import { Shield, Send, CheckCircle, Search, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { EmergencyBanner } from '@/components/layout/EmergencyBanner';
 
 export default function PublicPortalPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -87,6 +88,7 @@ export default function PublicPortalPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] font-body text-primary pb-20">
+      <EmergencyBanner />
       {/* Header */}
       <header className="border-b border-border bg-surface sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -229,7 +231,7 @@ export default function PublicPortalPage() {
         <div className="flex justify-center gap-8 border-t border-border pt-8">
           <Link href="/login" className="text-[10px] hover:text-accent uppercase tracking-widest transition-colors font-bold">Personnel Login</Link>
           <Link href="/portal/track" className="text-[10px] hover:text-accent uppercase tracking-widest transition-colors font-bold">Track Submission</Link>
-          <span className="text-[10px] uppercase tracking-widest font-bold">Emergency: 999 / 067-XXXXX</span>
+          <span className="text-[10px] uppercase tracking-widest font-bold">Emergency: 0793824968</span>
         </div>
       </footer>
     </div>

@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, loading } = useAuth();
   const pathname = usePathname();
   const role = profile?.role;
 
@@ -36,6 +36,15 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   ];
 
   const filteredItems = navItems.filter(item => role && item.roles.includes(role));
+
+  if (loading) {
+    return (
+      <aside className="h-full w-60 border-r border-border bg-surface flex flex-col p-6 space-y-4">
+        <div className="h-10 w-40 bg-border animate-pulse rounded" />
+        {[...Array(6)].map((_, i) => <div key={i} className="h-12 w-full bg-border/50 animate-pulse rounded" />)}
+      </aside>
+    );
+  }
 
   return (
     <aside className="h-full w-60 border-r border-border bg-surface flex flex-col">

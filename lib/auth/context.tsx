@@ -81,7 +81,7 @@ export function AuthProvider({
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    router.push('/login');
+    window.location.href = '/login';
   };
 
   return (

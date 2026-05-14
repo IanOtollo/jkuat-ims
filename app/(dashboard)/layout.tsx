@@ -28,8 +28,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <EmergencyBanner />
-        
         <header className="h-14 border-b border-border bg-surface flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
           <div className="flex items-center gap-4">
             <button 
