@@ -16,10 +16,16 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ 
+  children, 
+  initialProfile = null 
+}: { 
+  children: React.ReactNode,
+  initialProfile?: Profile | null
+}) {
   const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<Profile | null>(initialProfile);
+  const [loading, setLoading] = useState(!initialProfile);
   const supabase = createClient();
   const router = useRouter();
 
@@ -40,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setUser(session.user);
-        await fetchProfile(session.user.id);
+        if (!profile) await fetchProfile(session.user.id);
       }
       setLoading(false);
     };
@@ -63,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, profile]);
 
   const signIn = async (email: string, pass: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
