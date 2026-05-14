@@ -4,13 +4,7 @@ import { Topbar } from '@/components/layout/Topbar';
 import { getProfile } from '@/lib/auth/server';
 import { redirect } from 'next/navigation';
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const profile = await getProfile();
-
-  if (!profile) {
-    redirect('/login');
-  }
-
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />

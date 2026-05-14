@@ -10,18 +10,16 @@ export const metadata: Metadata = {
   description: "Official security operations terminal for Jomo Kenyatta University of Agriculture and Technology.",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const profile = await getProfile();
-
   return (
     <html lang="en">
       <body className="antialiased selection:bg-accent selection:text-background">
         <ToastProvider>
-          <AuthProvider initialProfile={profile}>
+          <AuthProvider>
             {children}
           </AuthProvider>
         </ToastProvider>
