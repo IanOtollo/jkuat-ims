@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Table } from '@/components/ui/Table';
 import { StatusBadge, SeverityBadge } from '@/components/ui/Badge';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { Incident } from '@/lib/types';
 import { formatDate, formatType, formatZone } from '@/lib/utils/format';
 import Link from 'next/link';
@@ -107,6 +107,47 @@ async function RecentIncidents({ role, userId }: { role: string, userId: string 
   );
 }
 
+async function OnDutyStats() {
+  const supabase = await createClient();
+  
+  const [
+    { count: active },
+    { count: total },
+    { data: zones }
+  ] = await Promise.all([
+    supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_active', true).in('role', ['guard', 'supervisor']),
+    supabase.from('profiles').select('*', { count: 'exact', head: true }).in('role', ['guard', 'supervisor']),
+    supabase.from('profiles').select('zone').not('zone', 'is', null).eq('is_active', true)
+  ]);
+
+  const uniqueZones = new Set(zones?.map(z => z.zone)).size;
+  const coveragePercent = uniqueZones ? Math.round((uniqueZones / 10) * 100) : 0;
+
+  return (
+    <div className="card p-6">
+      <h3 className="text-lg font-display font-medium text-primary mb-4">On Duty Statistics</h3>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted">Personnel Active</span>
+          <span className="text-sm font-mono text-primary">{active || 0} / {total || 0}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted">Zones Covered</span>
+          <span className="text-sm font-mono text-primary">{uniqueZones} / 10</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted">Coverage Level</span>
+          <span className="text-sm font-mono text-status-resolved">{coveragePercent}%</span>
+        </div>
+        <div className="flex items-center justify-between border-t border-border pt-4 mt-4">
+          <span className="text-sm text-muted">System Uptime</span>
+          <span className="text-sm font-mono text-status-resolved">99.9%</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default async function DashboardPage() {
   const profile = await getProfile();
   
@@ -151,23 +192,9 @@ export default async function DashboardPage() {
           </div>
         </div>
         
-        <div className="card p-6">
-          <h3 className="text-lg font-display font-medium text-primary mb-4">On Duty Statistics</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted">Personnel Active</span>
-              <span className="text-sm font-mono text-primary">24 / 32</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted">Zones Covered</span>
-              <span className="text-sm font-mono text-primary">10 / 10</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted">System Uptime</span>
-              <span className="text-sm font-mono text-status-resolved">99.9%</span>
-            </div>
-          </div>
-        </div>
+        <Suspense fallback={<div className="card p-6 h-64 animate-pulse bg-surface-raised" />}>
+          <OnDutyStats />
+        </Suspense>
       </div>
     </div>
   );
