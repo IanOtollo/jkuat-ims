@@ -5,10 +5,11 @@ import { format } from 'date-fns';
 import { Bell } from 'lucide-react';
 
 interface TopbarProps {
-  title: string;
+  title?: string;
+  hideTitle?: boolean;
 }
 
-export const Topbar = ({ title }: TopbarProps) => {
+export const Topbar = ({ title, hideTitle }: TopbarProps) => {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -17,8 +18,8 @@ export const Topbar = ({ title }: TopbarProps) => {
   }, []);
 
   return (
-    <header className="fixed top-0 right-0 z-30 h-14 w-[calc(100%-240px)] border-b border-border bg-surface flex items-center justify-between px-6">
-      <h2 className="text-lg font-display font-medium text-primary">{title}</h2>
+    <div className="flex items-center justify-between gap-4 w-full">
+      {!hideTitle && <h2 className="text-lg font-display font-medium text-primary">{title}</h2>}
       
       <div className="flex items-center gap-6">
         <div className="text-right hidden sm:block">
@@ -35,6 +36,6 @@ export const Topbar = ({ title }: TopbarProps) => {
           <span className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full border border-surface" />
         </button>
       </div>
-    </header>
+    </div>
   );
 };

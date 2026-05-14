@@ -17,7 +17,7 @@ import {
   LogOut 
 } from 'lucide-react';
 
-export const Sidebar = () => {
+export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const { profile, signOut } = useAuth();
   const pathname = usePathname();
   const role = profile?.role;
@@ -37,13 +37,20 @@ export const Sidebar = () => {
   const filteredItems = navItems.filter(item => role && item.roles.includes(role));
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-60 border-r border-border bg-surface flex flex-col">
-      <div className="p-6 border-b border-border flex items-center gap-3">
-        <img src="/logo.jpeg" alt="Logo" className="w-10 h-10 object-contain" />
-        <div>
-          <h1 className="text-xl font-display font-bold tracking-tight">JKUAT <span className="text-accent">IMS</span></h1>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-muted font-medium">Security Dept</p>
+    <aside className="h-full w-60 border-r border-border bg-surface flex flex-col">
+      <div className="p-6 border-b border-border flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <img src="/logo.jpeg" alt="Logo" className="w-10 h-10 object-contain" />
+          <div>
+            <h1 className="text-xl font-display font-bold tracking-tight">JKUAT <span className="text-accent">IMS</span></h1>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-muted font-medium">Security Dept</p>
+          </div>
         </div>
+        {onClose && (
+          <button onClick={onClose} className="lg:hidden text-muted hover:text-primary p-1">
+            <X size={20} />
+          </button>
+        )}
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4">
@@ -54,6 +61,7 @@ export const Sidebar = () => {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={onClose}
                   className={`flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors border-l-2 ${
                     isActive 
                       ? 'border-accent bg-surface-raised text-primary' 
