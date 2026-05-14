@@ -14,7 +14,8 @@ import {
   History, 
   Users, 
   User, 
-  LogOut 
+  LogOut,
+  X 
 } from 'lucide-react';
 
 export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
