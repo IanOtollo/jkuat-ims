@@ -80,8 +80,19 @@ export function AuthProvider({
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    window.location.href = '/login';
+    try {
+      // Force redirect after a timeout if signOut hangs
+      const timeout = setTimeout(() => {
+        window.location.href = '/login';
+      }, 1500);
+
+      await supabase.auth.signOut();
+      clearTimeout(timeout);
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Sign out error:', error);
+      window.location.href = '/login';
+    }
   };
 
   return (
