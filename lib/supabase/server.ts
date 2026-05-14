@@ -2,8 +2,8 @@ import { createServerClient } from '@supabase/auth-helpers-nextjs';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
-export const createClient = () => {
-  const cookieStore = cookies();
+export const createClient = async () => {
+  const cookieStore = await cookies();
   
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,18 +11,18 @@ export const createClient = () => {
     {
       cookies: {
         async get(name: string) {
-          return (await cookieStore).get(name)?.value;
+          return cookieStore.get(name)?.value;
         },
         async set(name: string, value: string, options: any) {
           try {
-            (await cookieStore).set({ name, value, ...options });
+            cookieStore.set({ name, value, ...options });
           } catch (error) {
             // Handle middleware/server action constraints
           }
         },
         async remove(name: string, options: any) {
           try {
-            (await cookieStore).set({ name, value: '', ...options });
+            cookieStore.set({ name, value: '', ...options });
           } catch (error) {
             // Handle middleware/server action constraints
           }

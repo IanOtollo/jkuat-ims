@@ -1,4 +1,3 @@
-export const unstable_instant = { prefetch: 'static' };
 
 import React from 'react';
 import { createClient } from '@/lib/supabase/server';
@@ -16,7 +15,7 @@ export default async function IncidentsPage() {
     redirect('/login');
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   
   let query = supabase
     .from('incidents')

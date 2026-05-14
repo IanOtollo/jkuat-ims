@@ -3,7 +3,7 @@ import { Profile } from '@/lib/types';
 
 // This function handles the dynamic part (cookies)
 export async function getProfile() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
   
   if (!session) return null;
@@ -18,7 +18,7 @@ export async function getProfile() {
 }
 
 export async function getSession() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
   return session;
 }

@@ -1,4 +1,3 @@
-export const unstable_instant = { prefetch: 'static' };
 
 import React, { Suspense } from 'react';
 import { getProfile } from '@/lib/auth/server';
@@ -20,7 +19,7 @@ import {
 } from 'lucide-react';
 
 async function DashboardStats({ role, userId }: { role: string, userId: string }) {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const [
     { count: total },
@@ -61,7 +60,7 @@ async function DashboardStats({ role, userId }: { role: string, userId: string }
 }
 
 async function RecentIncidents({ role, userId }: { role: string, userId: string }) {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   let query = supabase.from('incidents').select('*').order('created_at', { ascending: false }).limit(10);
   

@@ -1,4 +1,3 @@
-export const unstable_instant = { prefetch: 'static' };
 
 import React from 'react';
 import { createClient } from '@/lib/supabase/server';
@@ -14,7 +13,7 @@ export default async function UsersPage() {
     redirect('/dashboard');
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: users } = await supabase
     .from('profiles')
     .select('*')
