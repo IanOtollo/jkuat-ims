@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-background: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-raised: var(--color-surface-raised);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+  --color-primary: var(--color-text-primary);
+  --color-secondary: var(--color-text-secondary);
+  --color-muted: var(--color-text-muted);
+  --color-accent: var(--color-accent);
+  --color-accent-dim: var(--color-accent-dim);
+  
+  --color-status-pending: var(--color-status-pending);
+  --color-status-assigned: var(--color-status-assigned);
+  --color-status-in-progress: var(--color-status-in-progress);
+  --color-status-resolved: var(--color-status-resolved);
+  --color-status-closed: var(--color-status-closed);
+  
+  --color-severity-low: var(--color-severity-low);
+  --color-severity-medium: var(--color-severity-medium);
+  --color-severity-high: var(--color-severity-high);
+  
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+:root {
+  --color-bg: #0a0a0a;
+  --color-surface: #111111;
+  --color-surface-raised: #1a1a1a;
+  --color-border: #2a2a2a;
+  --color-border-strong: #3a3a3a;
+  --color-text-primary: #f5f5f5;
+  --color-text-secondary: #a0a0a0;
+  --color-text-muted: #606060;
+  --color-accent: #1d7c35; /* JKUAT Institutional Green */
+  --color-accent-dim: #145a25;
+  --color-status-pending: #f9b111; /* Gold */
+  --color-status-assigned: #3b82f6;
+  --color-status-in-progress: #8b5cf6;
+  --color-status-resolved: #1d7c35;
+  --color-status-closed: #cf152d; /* JKUAT Institutional Red */
+  --color-severity-low: #1d7c35;
+  --color-severity-medium: #f9b111;
+  --color-severity-high: #cf152d;
+  --color-destructive: #cf152d;
+
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-strong);
+}
+
+/* Utility Classes */
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+}
+
+.input-field {
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  width: 100%;
+}
+
+.input-field:focus {
+  border-color: var(--color-accent);
+  outline: none;
+}
+
+.btn {
+  font-weight: 500;
+  border-radius: 2px;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+}
+
+.btn-primary {
+  background-color: var(--color-text-primary);
+  color: #000;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-accent);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-surface-raised);
+  border-color: var(--color-border-strong);
+}
+
+.btn-destructive {
+  border: 1px solid var(--color-destructive);
+  color: var(--color-destructive);
+}
+
+.btn-destructive:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.btn-ghost {
+  color: var(--color-text-secondary);
+}
+
+.btn-ghost:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-raised);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border-strong);
+  padding: 0.75rem 1rem;
+}
+
+tbody td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.875rem;
+}
+
+tbody tr:hover {
+  background-color: var(--color-surface-raised);
+}
