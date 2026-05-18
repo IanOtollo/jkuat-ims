@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,7 +32,8 @@ export default function NewIncidentPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
 
   const { register, handleSubmit, formState: { errors } } = useForm<IncidentFormData>({
     resolver: zodResolver(incidentSchema),
@@ -55,7 +56,7 @@ export default function NewIncidentPage() {
   const onSubmit = async (data: IncidentFormData) => {
     setLoading(true);
     try {
-      const ref = await generateIncidentReference();
+      const ref = generateIncidentReference();
       
       const { data: incident, error: incError } = await supabase
         .from('incidents')

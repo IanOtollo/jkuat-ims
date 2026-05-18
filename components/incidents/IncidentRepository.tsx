@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
@@ -31,7 +31,8 @@ export const IncidentRepository = ({ initialIncidents, initialCount, profile }: 
   const [totalCount, setTotalCount] = useState(initialCount);
   const [page, setPage] = useState(0);
   const { toast } = useToast();
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const router = useRouter();
 
   // Filter States
@@ -70,7 +71,8 @@ export const IncidentRepository = ({ initialIncidents, initialCount, profile }: 
       setTotalCount(count || 0);
     }
     setLoading(false);
-  }, [page, searchTerm, statusFilter, typeFilter, severityFilter, zoneFilter, profile, supabase, toast]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, searchTerm, statusFilter, typeFilter, severityFilter, zoneFilter, profile]);
 
   // Use an effect to trigger fetch when filters change, except for the initial render
   const [isInitial, setIsInitial] = useState(true);

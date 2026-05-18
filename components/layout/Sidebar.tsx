@@ -24,15 +24,15 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const role = profile?.role;
 
   const navItems = [
-    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['guard', 'supervisor', 'head', 'admin'] },
-    { label: 'Incidents', href: '/incidents', icon: AlertTriangle, roles: ['guard', 'supervisor', 'head', 'admin'] },
-    { label: 'New Incident', href: '/incidents/new', icon: PlusSquare, roles: ['guard', 'supervisor', 'head'] },
-    { label: 'Assignments', href: '/assignments', icon: UserCheck, roles: ['supervisor', 'head'] },
-    { label: 'Public Reports', href: '/public-reports', icon: FileText, roles: ['supervisor', 'head'] },
-    { label: 'Analytics', href: '/analytics', icon: BarChart3, roles: ['head'] },
-    { label: 'Audit Logs', href: '/audit-logs', icon: History, roles: ['head', 'admin'] },
-    { label: 'Users', href: '/users', icon: Users, roles: ['admin'] },
-    { label: 'Profile', href: '/profile', icon: User, roles: ['guard', 'supervisor', 'head', 'admin'] },
+    { label: 'Dashboard',      href: '/dashboard',      icon: LayoutDashboard, roles: ['guard', 'supervisor', 'head', 'admin'] },
+    { label: 'Incidents',      href: '/incidents',      icon: AlertTriangle,   roles: ['guard', 'supervisor', 'head', 'admin'] },
+    { label: 'New Incident',   href: '/incidents/new',  icon: PlusSquare,      roles: ['guard', 'supervisor', 'head', 'admin'] },
+    { label: 'Assignments',    href: '/assignments',    icon: UserCheck,       roles: ['supervisor', 'head', 'admin'] },
+    { label: 'Public Reports', href: '/public-reports', icon: FileText,        roles: ['supervisor', 'head', 'admin'] },
+    { label: 'Analytics',      href: '/analytics',      icon: BarChart3,       roles: ['head', 'admin'] },
+    { label: 'Audit Logs',     href: '/audit-logs',     icon: History,         roles: ['head', 'admin'] },
+    { label: 'Users',          href: '/users',          icon: Users,           roles: ['admin'] },
+    { label: 'Profile',        href: '/profile',        icon: User,            roles: ['guard', 'supervisor', 'head', 'admin'] },
   ];
 
   const filteredItems = navItems.filter(item => role && item.roles.includes(role));

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/context';
 import { createClient } from '@/lib/supabase/client';
@@ -43,7 +43,8 @@ export default function IncidentDetailPage() {
   const [newNote, setNewNote] = useState('');
   const [noteLoading, setNoteLoading] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -87,7 +88,8 @@ export default function IncidentDetailPage() {
     } finally {
       setLoading(false);
     }
-  }, [id, profile, supabase, toast]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, profile]);
 
   useEffect(() => {
     if (profile && id) fetchData();

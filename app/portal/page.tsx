@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Input, Select, Textarea } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
 import { generatePublicReference } from '@/lib/utils/reference';
-import { Shield, Send, CheckCircle, Search, ArrowRight } from 'lucide-react';
+import { Shield, Send, CheckCircle, Search, Camera, X, Upload, ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import { EmergencyBanner } from '@/components/layout/EmergencyBanner';
 
@@ -16,7 +16,12 @@ export default function PublicPortalPage() {
   const [loading, setLoading] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(true);
   const { toast } = useToast();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
+
+  // Evidence upload state
+  const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
+  const [evidencePreview, setEvidencePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     type: '',
@@ -27,12 +32,58 @@ export default function PublicPortalPage() {
     contact: '',
   });
 
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate: images and videos only, max 10MB
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/quicktime'];
+    if (!allowed.includes(file.type)) {
+      toast('error', 'Only images (JPG, PNG, WebP, GIF) or videos (MP4, MOV) are accepted.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast('error', 'File must be under 10 MB.');
+      return;
+    }
+
+    setEvidenceFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setEvidencePreview(reader.result as string);
+    reader.readAsDataURL(file);
+  }, [toast]);
+
+  const clearEvidence = useCallback(() => {
+    setEvidenceFile(null);
+    setEvidencePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const ref = await generatePublicReference();
-      
+      const ref = generatePublicReference();
+
+      // Upload evidence photo if provided
+      let evidenceUrl: string | null = null;
+      if (evidenceFile) {
+        const ext = evidenceFile.name.split('.').pop();
+        const path = `public-reports/${ref}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from('evidence')
+          .upload(path, evidenceFile, { upsert: true });
+
+        if (uploadError) {
+          // Non-fatal — report still submits, but evidence is skipped
+          console.warn('Evidence upload failed (storage policy may need updating):', uploadError.message);
+          toast('error', 'Photo upload failed — report will be submitted without the evidence.');
+        } else {
+          const { data: urlData } = supabase.storage.from('evidence').getPublicUrl(path);
+          evidenceUrl = urlData?.publicUrl ?? null;
+        }
+      }
+
       const { error } = await supabase
         .from('public_reports')
         .insert({
@@ -44,10 +95,11 @@ export default function PublicPortalPage() {
           is_anonymous: isAnonymous,
           reporter_name: isAnonymous ? null : formData.name,
           reporter_contact: isAnonymous ? null : formData.contact,
+          ...(evidenceUrl ? { evidence_url: evidenceUrl } : {}),
         });
 
       if (error) throw error;
-      
+
       setRefNumber(ref);
       setIsSubmitted(true);
       toast('success', 'Report submitted successfully');
@@ -77,7 +129,7 @@ export default function PublicPortalPage() {
             <Link href="/portal/track">
               <Button className="w-full">Track My Report</Button>
             </Link>
-            <Button variant="ghost" className="w-full" onClick={() => setIsSubmitted(false)}>
+            <Button variant="ghost" className="w-full" onClick={() => { setIsSubmitted(false); clearEvidence(); }}>
               Submit Another Report
             </Button>
           </div>
@@ -123,8 +175,8 @@ export default function PublicPortalPage() {
               <Shield size={16} /> Classification
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Select 
-                label="Nature of Incident" 
+              <Select
+                label="Nature of Incident"
                 required
                 value={formData.type}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({...formData, type: e.target.value})}
@@ -139,8 +191,8 @@ export default function PublicPortalPage() {
                   { label: 'Other', value: 'other' },
                 ]}
               />
-              <Select 
-                label="Campus Zone" 
+              <Select
+                label="Campus Zone"
                 required
                 value={formData.zone}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({...formData, zone: e.target.value})}
@@ -159,9 +211,9 @@ export default function PublicPortalPage() {
                 ]}
               />
             </div>
-            <Input 
-              label="Precise Location" 
-              placeholder="e.g. Near Hall 6, Ground Floor" 
+            <Input
+              label="Precise Location"
+              placeholder="e.g. Near Hall 6, Ground Floor"
               required
               value={formData.location}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, location: e.target.value})}
@@ -171,14 +223,83 @@ export default function PublicPortalPage() {
           {/* Description */}
           <div className="card p-8 space-y-6">
             <h3 className="text-sm uppercase tracking-widest text-accent font-bold pb-4 border-b border-border">Details</h3>
-            <Textarea 
-              label="Account of Incident" 
-              placeholder="Please provide as much detail as possible..." 
+            <Textarea
+              label="Account of Incident"
+              placeholder="Please provide as much detail as possible..."
               required
               rows={6}
               value={formData.description}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, description: e.target.value})}
             />
+          </div>
+
+          {/* Photo Evidence */}
+          <div className="card p-8 space-y-6">
+            <h3 className="text-sm uppercase tracking-widest text-accent font-bold pb-4 border-b border-border flex items-center gap-2">
+              <Camera size={16} /> Supporting Evidence
+              <span className="text-muted font-normal normal-case tracking-normal text-xs ml-1">(Optional)</span>
+            </h3>
+
+            {!evidenceFile ? (
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="border-2 border-dashed border-border hover:border-accent/50 transition-colors rounded-lg p-10 flex flex-col items-center justify-center gap-4 cursor-pointer group"
+              >
+                <div className="w-14 h-14 rounded-full bg-surface-raised flex items-center justify-center group-hover:bg-accent/10 transition-colors border border-border">
+                  <Upload size={24} className="text-muted group-hover:text-accent transition-colors" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-medium text-primary">Click to upload a photo or video</p>
+                  <p className="text-xs text-muted mt-1">JPG, PNG, WebP, GIF or MP4 · Max 10 MB</p>
+                </div>
+                <Button type="button" variant="secondary" size="sm" onClick={e => { e.stopPropagation(); fileInputRef.current?.click(); }}>
+                  <ImageIcon size={14} className="mr-2" /> Choose File
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+              </div>
+            ) : (
+              <div className="relative rounded-lg overflow-hidden border border-border bg-surface-raised">
+                {evidenceFile.type.startsWith('image/') ? (
+                  <img
+                    src={evidencePreview!}
+                    alt="Evidence preview"
+                    className="w-full max-h-72 object-contain bg-black/50"
+                  />
+                ) : (
+                  <div className="w-full h-40 flex items-center justify-center bg-surface-raised gap-3">
+                    <Camera size={28} className="text-accent" />
+                    <div>
+                      <p className="text-sm font-medium">{evidenceFile.name}</p>
+                      <p className="text-xs text-muted">{(evidenceFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                  </div>
+                )}
+                <div className="p-4 flex items-center justify-between bg-surface border-t border-border">
+                  <div>
+                    <p className="text-sm font-medium truncate max-w-xs">{evidenceFile.name}</p>
+                    <p className="text-xs text-muted">{(evidenceFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={clearEvidence}
+                    className="p-2 rounded-full hover:bg-red-500/10 text-muted hover:text-red-400 transition-colors"
+                    aria-label="Remove evidence"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <p className="text-[10px] text-muted leading-relaxed">
+              * Photographic or video evidence significantly assists our investigation. Only submit files you have the right to share.
+            </p>
           </div>
 
           {/* Identity */}
@@ -187,7 +308,7 @@ export default function PublicPortalPage() {
               <h3 className="text-sm uppercase tracking-widest text-accent font-bold">Reporter Identity</h3>
               <div className="flex items-center gap-3">
                 <span className="text-xs text-muted">Remain Anonymous</span>
-                <button 
+                <button
                   type="button"
                   onClick={() => setIsAnonymous(!isAnonymous)}
                   className={`w-10 h-5 relative rounded-full transition-colors ${isAnonymous ? 'bg-accent' : 'bg-border'}`}
@@ -199,14 +320,14 @@ export default function PublicPortalPage() {
 
             {!isAnonymous && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-300">
-                <Input 
-                  label="Full Name" 
+                <Input
+                  label="Full Name"
                   placeholder="John Doe"
                   value={formData.name}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, name: e.target.value})}
                 />
-                <Input 
-                  label="Phone or Email" 
+                <Input
+                  label="Phone or Email"
                   placeholder="07XX XXX XXX"
                   value={formData.contact}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, contact: e.target.value})}

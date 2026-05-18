@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
@@ -21,7 +21,8 @@ export const UserManagement = ({ initialUsers }: UserManagementProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const router = useRouter();
   
   const [formData, setFormData] = useState({
@@ -41,7 +42,8 @@ export const UserManagement = ({ initialUsers }: UserManagementProps) => {
       .order('full_name', { ascending: true });
     
     if (data) setUsers(data);
-  }, [supabase]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();

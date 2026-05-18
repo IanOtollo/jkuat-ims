@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/lib/auth/context';
 import { createClient } from '@/lib/supabase/client';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -30,7 +30,8 @@ export default function AnalyticsPage() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
 
   const fetchAnalytics = useCallback(async () => {
     setLoading(true);
@@ -97,7 +98,8 @@ export default function AnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  }, [supabase, toast]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (profile) fetchAnalytics();

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useAuth } from '@/lib/auth/context';
 import { createClient } from '@/lib/supabase/client';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -14,7 +14,8 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [passLoading, setPassLoading] = useState(false);
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
 
   const [formData, setFormData] = useState({
     full_name: profile?.full_name || '',

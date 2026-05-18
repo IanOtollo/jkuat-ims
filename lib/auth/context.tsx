@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Profile, UserRole } from '@/lib/types';
@@ -26,7 +26,9 @@ export function AuthProvider({
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<Profile | null>(initialProfile);
   const [loading, setLoading] = useState(!initialProfile);
-  const supabase = createClient();
+  // Stabilize the client so it doesn't trigger re-renders
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const router = useRouter();
 
   useEffect(() => {
@@ -69,7 +71,8 @@ export function AuthProvider({
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase, profile]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const signIn = async (email: string, pass: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
