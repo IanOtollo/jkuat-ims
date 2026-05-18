@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth/context";
 import { ToastProvider } from "@/components/ui/Toast";
 import { getProfile } from "@/lib/auth/server";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "JKUAT IMS | Emergency Incident Management",
@@ -23,6 +24,7 @@ export default function RootLayout({
             {children}
           </AuthProvider>
         </ToastProvider>
+        <Analytics />
       </body>
     </html>
   );
